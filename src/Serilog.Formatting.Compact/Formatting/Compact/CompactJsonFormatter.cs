@@ -87,12 +87,9 @@ namespace Serilog.Formatting.Compact
                 output.Write(']');
             }
 
-            if (logEvent.Level != LogEventLevel.Information)
-            {
-                output.Write(",\"@l\":\"");
-                output.Write(logEvent.Level);
-                output.Write('\"');
-            }
+            output.Write(",\"@l\":\"");
+            output.Write(logEvent.Level);
+            output.Write('\"');
 
             if (logEvent.Exception != null)
             {
