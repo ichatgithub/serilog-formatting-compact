@@ -1,4 +1,4 @@
-# Serilog.Formatting.Compact [![Build status](https://ci.appveyor.com/api/projects/status/ch5il2airviylofn?svg=true)](https://ci.appveyor.com/project/serilog/serilog-formatting-compact) [![NuGet](https://img.shields.io/nuget/vpre/Serilog.Formatting.Compact.svg)](https://nuget.org/packages/Serilog.Formatting.Compact)
+# Serilog.Formatting.Compact [![Build status](https://ci.appveyor.com/api/projects/status/ch5il2airviylofn?svg=true)](https://ci.appveyor.com/project/serilog/serilog-formatting-compact) [![NuGet](https://img.shields.io/nuget/v/Serilog.Formatting.Compact.svg)](https://nuget.org/packages/Serilog.Formatting.Compact)
 
 A simple, compact JSON-based event format for Serilog. `CompactJsonFormatter` significantly reduces the byte count of small log events when compared with Serilog's default `JsonFormatter`, while remaining human-readable. It achieves this through shorter built-in property names, a leaner format, and by excluding redundant information.
 
@@ -15,15 +15,25 @@ A simple `Hello, {User}` event.
 Install from [NuGet](https://nuget.org/packages/Serilog.Formatting.Compact):
 
 ```powershell
-Install-Package Serilog.Formatting.Compact -Pre
+Install-Package Serilog.Formatting.Compact
 ```
 
 The formatter is used in conjunction with sinks that accept `ITextFormatter`. For example, the [rolling file](https://github.com/serilog/serilog-sinks-rollingfile) sink:
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
-  .WriteTo.Sink(new RollingFileSink("./logs/myapp.txt", new CompactJsonFormatter(), null, null))
+  .WriteTo.RollingFile(new CompactJsonFormatter(), "./logs/myapp.json")
   .CreateLogger();
+```
+
+To specify the formatter in XML `<appSettings>` provide its assembly-qualified type name (**requires Serilog 2.1+**):
+
+```xml
+<appSettings>
+  <add key="serilog:using:RollingFile" value="Serilog.Sinks.RollingFile" />
+  <add key="serilog:write-to:RollingFile.pathFormat" value="./logs/myapp.json" />
+  <add key="serilog:write-to:RollingFile.formatter"
+       value="Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact" />
 ```
 
 ### Rendered events
@@ -64,7 +74,7 @@ The `@` sigil may be escaped at the start of a user property name by doubling, e
 
 ##### Batch format
 
-When events are batched into a single payload, a newline-delimited stream of JSON documents is required. Either `\n` or `\r\n` delimiters may be used.
+When events are batched into a single payload, a newline-delimited stream of JSON documents is required. Either `\n` or `\r\n` delimiters may be used. Batches of newline-separated compact JSON events can use the (unofficial) MIME type `application/vnd.serilog.clef`.
 
 ##### Versioning
 
@@ -110,7 +120,12 @@ See `test/Serilog.Formatting.Compact.Tests/FormattingBenchmarks.cs`.
 
 |                      Formatter |    Median  |    StdDev | Scaled |
 |:------------------------------ |----------: |---------: |------: |
-|                `JsonFormatter` | 11.2775 us | 0.0682 us |   1.00 |
-|         `CompactJsonFormatter` |  6.0315 us | 0.0429 us |   0.53 |
-|        `RenderedJsonFormatter` | 13.7585 us | 0.1194 us |   1.22 |
-| `RenderedCompactJsonFormatter` |  7.0680 us | 0.0605 us |   0.63 |
+|                `JsonFormatter` | 11.2775 &micro;s | 0.0682 &micro;s |   1.00 |
+|         `CompactJsonFormatter` |  6.0315 &micro;s | 0.0429 &micro;s |   0.53 |
+|        `RenderedJsonFormatter` | 13.7585 &micro;s | 0.1194 &micro;s |   1.22 |
+| `RenderedCompactJsonFormatter` |  7.0680 &micro;s | 0.0605 &micro;s |   0.63 |
+
+### Compiling
+
+Opening serilog-formatting-compact.sln requires VS2015 Update 3 with the .NET Core tooling to be installed.  
+See: https://www.microsoft.com/net/core#windows
